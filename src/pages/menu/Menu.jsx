@@ -32,7 +32,7 @@ export default () => {
         return plates.map((plate) => (
             <TouchableOpacity
                 key={plate.id}
-                onPress={() => navigation.navigate('PlateDetail')}>
+                onPress={() => navigation.navigate('PlateDetail', { plate })}>
                 <View
                     key={1}
                     style={styles.categoryContent}

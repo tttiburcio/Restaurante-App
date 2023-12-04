@@ -29,9 +29,9 @@ export const updatePlate = async (id, plate) => {
     }
 }
 
-export const deletePlate = async (id, plate) => {
+export const deletePlate = async (id) => {
     try {
-        await api.delete(`/pratos/${id}`, plate);
+        await api.delete(`/pratos/${id}`);
 
     } catch (err) {
         console.log(err);

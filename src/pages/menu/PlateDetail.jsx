@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Alert,
     SafeAreaView,
@@ -8,15 +8,17 @@ import {
 } from 'react-native';
 import Button from '../../components/Button/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { updatePlate } from '../../services/pratosService'
-import { useNavigation } from '@react-navigation/native';
+import { updatePlate, deletePlate } from '../../services/pratosService'
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 
-function DetailPlate() {
+function DetailPlate({ route }) {
+    const [plate, setPlate] = React.useState({});
     const [nomeP, onChangeNomeP] = React.useState('');
     const [descricaoP, onChangeDescricaoP] = React.useState('');
     const [precoP, onChangePrecoP] = React.useState('');
 
+    const isFocused = useIsFocused();
     const navigation = useNavigation();
 
     const register = async () => {
@@ -29,6 +31,8 @@ function DetailPlate() {
             return
         }
 
+        const value = await AsyncStorage.getItem('restaurantData');
+
         const data = {
             nome: nomeP,
             descricao: descricaoP,
@@ -38,7 +42,7 @@ function DetailPlate() {
             }
         }
 
-        await updatePlate(data)
+        await updatePlate(plate.id, data)
 
         Alert.alert('Prato alterado com sucesso!');
 
@@ -60,6 +64,39 @@ function DetailPlate() {
         }
 
     }
+
+    const removePlate = async () => {
+        Alert.alert('Excluir Prato!', 'Você realmente deseja excluir o prato?', [
+            {
+                text: 'Não',
+                onPress: () => { },
+                style: 'cancel',
+            },
+            {
+                text: 'Sim', onPress: async () => {
+                    await deletePlate(plate.id)
+
+                    Alert.alert('Prato excluído com sucesso!');
+
+                    setTimeout(() => navigation.goBack(), 1500)
+                }
+            },
+        ]);
+    }
+
+    const loadData = () => {
+        const plate = route.params.plate
+        onChangeNomeP(plate?.nome)
+        onChangeDescricaoP(plate?.descricao)
+        onChangePrecoP(plate?.preco + "")
+        setPlate(plate)
+    };
+
+    useEffect(() => {
+        if (isFocused) {
+            loadData();
+        }
+    }, [isFocused]);
 
     return (
         <SafeAreaView style={styles.sectionContainer}>
@@ -95,7 +132,7 @@ function DetailPlate() {
             <Button
                 buttonText="Excluir Prato"
                 buttonColor="#8C1717"
-                onPress={{}}
+                onPress={removePlate}
             />
         </SafeAreaView>
     );
